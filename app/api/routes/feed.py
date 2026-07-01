@@ -1,15 +1,18 @@
-from fastapi import APIRouter
+from collections.abc import Sequence
 
-from app.api.deps import DbSession, PaginationParams
+from fastapi import APIRouter
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
+
+from app.api.deps import DbSession
+from app.models import User
 from app.schemas.feed import FeedPost, FeedUser
 from app.services import feed_service
 
 router = APIRouter(tags=["feed"])
 
 
-@router.get("/feed", response_model=list[FeedUser])
-async def get_feed(db: DbSession, pagination: PaginationParams) -> list[FeedUser]:
-    users = await feed_service.get_feed(db, pagination.limit, pagination.offset)
+def _to_feed_users(users: Sequence[User]) -> list[FeedUser]:
     return [
         FeedUser(
             username=user.username,
@@ -25,3 +28,8 @@ async def get_feed(db: DbSession, pagination: PaginationParams) -> list[FeedUser
         )
         for user in users
     ]
+
+
+@router.get("/feed")
+async def get_feed(db: DbSession) -> Page[FeedUser]:
+    return await paginate(db, feed_service.build_feed_query(), transformer=_to_feed_users)

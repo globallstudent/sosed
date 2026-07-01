@@ -1,8 +1,7 @@
 import uuid
-from collections.abc import Sequence
 from datetime import UTC, datetime
 
-from sqlalchemy import or_, select
+from sqlalchemy import Select, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, PermissionDeniedError
@@ -26,15 +25,12 @@ def _ensure_author(post: Post, user: User) -> None:
         raise PermissionDeniedError("You can only modify your own posts")
 
 
-async def list_posts(
-    db: AsyncSession,
+def build_posts_query(
     *,
-    limit: int,
-    offset: int,
     search: str | None = None,
     date_from: datetime | None = None,
     date_to: datetime | None = None,
-) -> Sequence[Post]:
+) -> Select[tuple[Post]]:
     stmt = select(Post)
     if search:
         pattern = f"%{search}%"
@@ -44,8 +40,7 @@ async def list_posts(
     if date_to:
         stmt = stmt.where(Post.created_at <= _as_utc(date_to))
 
-    stmt = stmt.order_by(Post.created_at.desc()).limit(limit).offset(offset)
-    return (await db.scalars(stmt)).all()
+    return stmt.order_by(Post.created_at.desc())
 
 
 async def create_post(db: AsyncSession, author: User, data: PostCreate) -> Post:

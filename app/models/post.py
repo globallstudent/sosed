@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 class Post(Base, TimestampMixin):
     __tablename__ = "posts"
+    __table_args__ = (Index("ix_posts_created_at", "created_at"),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     author_id: Mapped[uuid.UUID] = mapped_column(

@@ -1,26 +1,24 @@
 import uuid
 
 from fastapi import APIRouter, status
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 
-from app.api.deps import DbSession, PaginationParams, PostFilterParams, VerifiedUser
+from app.api.deps import DbSession, PostFilterParams, VerifiedUser
 from app.schemas import CommentOut, PostCreate, PostDetailOut, PostOut, PostUpdate
 from app.services import comment_service, post_service
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
-@router.get("", response_model=list[PostOut])
-async def list_posts(
-    db: DbSession, pagination: PaginationParams, filters: PostFilterParams
-) -> list[PostOut]:
-    return await post_service.list_posts(
-        db,
-        limit=pagination.limit,
-        offset=pagination.offset,
+@router.get("")
+async def list_posts(db: DbSession, filters: PostFilterParams) -> Page[PostOut]:
+    query = post_service.build_posts_query(
         search=filters.search,
         date_from=filters.date_from,
         date_to=filters.date_to,
     )
+    return await paginate(db, query)
 
 
 @router.post("", response_model=PostOut, status_code=status.HTTP_201_CREATED)

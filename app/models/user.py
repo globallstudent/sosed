@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, false
+from sqlalchemy import Index, String, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 class User(Base, TimestampMixin):
     __tablename__ = "users"
+    __table_args__ = (Index("ix_users_created_at", "created_at"),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)

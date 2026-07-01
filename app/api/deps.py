@@ -49,22 +49,6 @@ VerifiedUser = Annotated[User, Depends(get_current_verified_user)]
 
 
 @dataclass
-class Pagination:
-    limit: int
-    offset: int
-
-
-def get_pagination(
-    page: Annotated[int, Query(ge=1)] = 1,
-    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
-) -> Pagination:
-    return Pagination(limit=page_size, offset=(page - 1) * page_size)
-
-
-PaginationParams = Annotated[Pagination, Depends(get_pagination)]
-
-
-@dataclass
 class PostFilters:
     search: str | None
     date_from: datetime | None
