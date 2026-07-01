@@ -1,0 +1,33 @@
+[project]
+name = "sosed"
+version = "0.1.0"
+description = "Mini social network backend (FastAPI + PostgreSQL + Celery)"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.18.5",
+    "asyncpg>=0.31.0",
+    "bcrypt>=5.0.0",
+    "celery>=5.6.3",
+    "email-validator>=2.3.0",
+    "fastapi>=0.138.2",
+    "psycopg[binary]>=3.3.4",
+    "pydantic-settings>=2.14.2",
+    "pyjwt>=2.13.0",
+    "redis>=8.0.1",
+    "slowapi>=0.1.10",
+    "sqlalchemy[asyncio]>=2.0.51",
+    "uvicorn[standard]>=0.49.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.20",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
